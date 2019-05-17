@@ -13,6 +13,12 @@ class TheoremJS {
   	this.version = "v1.1.0"
   }
   
+  exp(n) {
+  	if (n.isComplex) {
+  		return n.exp()
+  	}
+  	return new BigNumber(Math.exp(new BigNumber(n).toNumber()))
+  }
   factorial(n) {
       if (new BigNumber(n).eq(0)) {
           return new BigNumber(1);
@@ -52,6 +58,9 @@ class TheoremJS {
       }
   }
   ln(x, n = 15) {
+  	if (x.isComplex) {
+  		return x.ln()
+  	}
       let buffer = new BigNumber(0);
       for (let i = 0; i < Math.ceil(n + (3 / 2 * x)); i++) {
   		const n = new BigNumber(1)
@@ -91,6 +100,9 @@ class TheoremJS {
       return new BigNumber(Number(.5*Math.log(2*Math.PI)+(z+.5)*Math.log(t)-t+Math.log(x)-Math.log(z)).toFixed(10));
   }
   log(x, base, n = 15) {
+  	if (x.isComplex) {
+  		return x.log(base)
+  	}
   	return new BigNumber(this.ln(x, n).div(this.ln(base, n)).toFixed(n - 1))
   }
   pow(n, base) {
@@ -122,7 +134,11 @@ class TheoremJS {
       }
   	let result = []
       for (var i = 0; i < n.length; i++) {
-      	result.push(new BigNumber(new BigNumber(n[i]).sqrt()))
+  		if (new BigNumber(n[i]).lt(0)) {
+  			result.push(this.complex(0, new BigNumber(n[i]).abs().sqrt()))
+  		} else {
+  			result.push(new BigNumber(new BigNumber(n[i]).sqrt()))
+  		}
       }
   	return result.length == 1 ? result[0] : result
   }
@@ -407,6 +423,15 @@ class TheoremJS {
   	return result.length == 1 ? result[0] : result
   }
   cos(n) {
+  	if (n.isComplex) {
+  		const a = n.a.toNumber()
+  		const b = n.b.toNumber()
+  
+  		const re = Math.cos(a) * Math.cosh(b)
+  		const im = Math.sin(a) * Math.sinh(b)
+  
+  		return this.complex(re, -im)
+  	}
       if (typeof n != 'object' || BigNumber.isBigNumber(n)) {
   		n = BigNumber.isBigNumber(n) == true ? n.toNumber() : n
           n = [n]
@@ -418,6 +443,15 @@ class TheoremJS {
   	return result.length == 1 ? result[0] : result
   }
   cosh(n) {
+  	if (n.isComplex) {
+  		const a = n.a.toNumber()
+  		const b = n.b.toNumber()
+  
+  		const re = Math.cos(b) * Math.cosh(a)
+  		const im = Math.sin(b) * Math.sinh(a)
+  
+  		return this.complex(re, im)
+  	}
   	if (typeof n != 'object' || BigNumber.isBigNumber(n)) {
   		n = BigNumber.isBigNumber(n) == true ? n.toNumber() : n
           n = [n]
@@ -429,25 +463,41 @@ class TheoremJS {
   	return result.length == 1 ? result[0] : result
   }
   deg2rad(x) {
-      return new BigNumber(x).times(this.pi()).div(180)
+      return new BigNumber(x).times(this.pi).div(180)
   }
-  drawCircularPoints(n, r=1, start=[-r, 0]) {
-  	const angle = this.pi().times(2).div(n)
+  drawCircularPoints(n, r=1, start=[-r, 0], complex=false) {
+  	const angle = this.pi.times(2).div(n)
   	let buffer = {}
   	buffer[start[0]] = start[1]
   	let angleState = this.atan2(...start.reverse()) + angle.toNumber()
   	for (var i = 0; i < n - 1; i++) {
   		const x = new BigNumber(r).times(this.cos(angleState)).toString()
   		const y = new BigNumber(r).times(this.sin(angleState)).toNumber()
-  		buffer[x] = y
+  		if (complex === true) {
+  			buffer[i] = this.complex(x, y)
+  		} else {
+  			buffer[x] = y
+  		}
   		angleState += angle.toNumber()
+  	}
+  	if (complex === true) {
+  		return Object.values(buffer)
   	}
   	return buffer
   }
   rad2deg(x) {
-  	return new BigNumber(x).times(180).div(this.pi())
+  	return new BigNumber(x).times(180).div(this.pi)
   }
   sin(n) {
+  	if (n.isComplex) {
+  		const a = n.a.toNumber()
+  		const b = n.b.toNumber()
+  
+  		const re = Math.cosh(b) * Math.sin(a)
+  		const im = Math.cos(a) * Math.sinh(b)
+  
+  		return this.complex(re, im)
+  	}
       if (typeof n != 'object' || BigNumber.isBigNumber(n)) {
           n = BigNumber.isBigNumber(n) == true ? n.toNumber() : n
           n = [n]
@@ -459,6 +509,15 @@ class TheoremJS {
       return result.length == 1 ? result[0] : result
   }
   sinh(n) {
+  	if (n.isComplex) {
+  		const a = n.a.toNumber()
+  		const b = n.b.toNumber()
+  
+  		const re = Math.cos(b) * Math.sinh(a)
+  		const im = Math.cosh(a) * Math.sin(b)
+  
+  		return this.complex(re, im)
+  	}
   	if (typeof n != 'object' || BigNumber.isBigNumber(n)) {
   		n = BigNumber.isBigNumber(n) == true ? n.toNumber() : n
           n = [n]
@@ -470,6 +529,20 @@ class TheoremJS {
   	return result.length == 1 ? result[0] : result
   }
   tan(n) {
+  	if (n.isComplex) {
+  		const Ta = n.a.times(2).toNumber()
+  		const Tb = n.b.times(2).toNumber()
+  
+  		const sin = Math.sin(Ta)
+  		const cos = Math.cos(Ta)
+  		const cosh = Math.cosh(Tb)
+  		const sinh = Math.sinh(Tb)
+  
+  		const re = sin / (cos + cosh)
+  		const im = sinh / (cos + cosh)
+  		
+  		return this.complex(re, im)
+  	}
       if (typeof n != 'object' || BigNumber.isBigNumber(n)) {
   		n = BigNumber.isBigNumber(n) == true ? n.toNumber() : n
           n = [n]
@@ -481,6 +554,20 @@ class TheoremJS {
   	return result.length == 1 ? result[0] : result
   }
   tanh(n) {
+  	if (n.isComplex) {
+  		const Ta = n.a.times(2).toNumber()
+  		const Tb = n.b.times(2).toNumber()
+  
+  		const sin = Math.sin(Tb)
+  		const cos = Math.cos(Tb)
+  		const cosh = Math.cosh(Ta)
+  		const sinh = Math.sinh(Ta)
+  
+  		const re = sinh / (cos + cosh)
+  		const im = sin / (cos + cosh)
+  
+  		return this.complex(re, im)
+  	}
   	if (typeof n != 'object' || BigNumber.isBigNumber(n)) {
   		n = BigNumber.isBigNumber(n) == true ? n.toNumber() : n
           n = [n]
@@ -1060,7 +1147,8 @@ class TheoremJS {
   ceil(n) {
   	return new BigNumber(n).integerValue(BigNumber.ROUND_CEIL)
   }
-  e(n = 15) {
+  get e() {
+  	const n = 15
   	const BN = BigNumber.clone({ DECIMAL_PLACES: n })
       let zero = new BN(0);
       let one = new BN(1);
@@ -1076,7 +1164,8 @@ class TheoremJS {
   floor(n) {
   	return new BigNumber(n).integerValue(BigNumber.ROUND_FLOOR)
   }
-  goldenRatio(n = 15) {
+  get goldenRatio() {
+  	const n = 15
   	const BN = BigNumber.clone({ DECIMAL_PLACES: n + 1 })
   	return new BN(BN(1).plus(this.sqrt(5)).div(2).toFixed(n + 1))
   }
@@ -1131,7 +1220,8 @@ class TheoremJS {
   	}
   	return new BigNumber(out)
   }
-  pi(digits = 15) {
+  get pi() {
+  	const digits = 15
   	const Decimal = BigNumber.clone({ DECIMAL_PLACES: digits })
       function arctan(x) {
           var y = x;
@@ -1215,6 +1305,9 @@ class TheoremJS {
   convertToBase(x, n) {
   	const BN = BigNumber.clone({ ALPHABET: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/" })
   	return new BN(x).toString(n)
+  }
+  get fn() {
+  	return this.prototype
   }
   toBase10(n, base) {
   	return new BigNumber(n, base);
@@ -1771,6 +1864,260 @@ class TheoremJS {
   		str = zeroPad(str.charCodeAt().toString(2));
   		return !1 == spaceSeparatedOctets ? str : str + " "
   	})
+  }
+  complex(a=0, b=0) {
+  	class complex {
+  		abs() {
+  			return new BigNumber(this.a).times(this.a).plus(this.b.times(this.b)).sqrt() // sqrt(a^2 + b^2)
+  		}
+  		arg() {
+  			return new BigNumber(this.t.atan2(this.b, this.a))
+  		}
+  		clone() {
+  			return Object.assign( Object.create( Object.getPrototypeOf(this)), this)
+  		}
+  		conjugate() {
+  			this.b = this.b.negated()
+  			return this
+  		}
+  		constructor(a, b, theoremjs) {
+  			this.a = new BigNumber(a)
+  			this.b = new BigNumber(b)
+  			this.t = theoremjs
+  		}
+  		dividedBy() {
+  			return this.times(...arguments)
+  		}
+  		div(complex) {
+  			if (!complex.isComplex) {
+  				throw "[TheoremJS]: Complex operation require complex numbers"
+  			}
+  			
+  			const a = this.a
+  			const b = this.b
+  			const c = complex.a
+  			const d = complex.b
+  		
+  			const c2d2 = c.times(c).plus(d.times(d)) // c^2 + d^2
+  		
+  			const acbd = a.times(c).plus(b.times(d)) // a*c + b*d
+  			const bcad = b.times(c).minus(a.times(d)) // b*c - a*d
+  		
+  			const re = acbd.div(c2d2)
+  			const im = bcad.div(c2d2)
+  		
+  			this.a = re
+  			this.b = im
+  		
+  			return this
+  		}
+  		equal() {
+  			return this.eq(...arguments)
+  		}
+  		eq(complex) {
+  			if (!complex.isComplex) {
+  				throw "[TheoremJS]: Complex operation require complex numbers"
+  			}
+  			return this.a.eq(complex.a) && this.b.eq(complex.b)
+  		}
+  		exp() {
+  			const a = this.a
+  			const b = this.b
+  		
+  			const ea = this.t.exp(a)
+  			const cos = this.t.cos(b)
+  			const sin = this.t.sin(b)
+  		
+  			const re = ea.times(cos)
+  			const im = ea.times(sin)
+  		
+  			this.a = re
+  			this.b = im
+  		
+  			return this
+  		}
+  		get isComplex() {
+  			return true
+  		}
+  		ln() {
+  			const a = this.a
+  			const b = this.b
+  		
+  			const asbs = a.times(a).plus(b.times(b))
+  			const log = this.t.ln(asbs)
+  			const half = log.div(2)
+  		
+  			this.b = this.arg()
+  			this.a = half
+  		
+  			return this
+  		}
+  		log(base) {
+  			if (!base) {
+  				throw "[TheoremJS] Log: wrong base"
+  			}
+  			let a = this.a
+  			let b = this.b
+  			if (b.eq(0)) {
+  				this.a = this.t.log(a, base)
+  		
+  				return this
+  			}
+  			const asbs = a.times(a).plus(b.times(b))
+  			const log = this.t.ln(asbs)
+  			const half = log.div(2)
+  		
+  			a = this.arg()
+  			b = half
+  			const c = this.t.ln(base)
+  			const d = new BigNumber(0)
+  		
+  			const c2d2 = c.times(c).plus(d.times(d)) // c^2 + d^2
+  		
+  			const acbd = a.times(c).plus(b.times(d)) // a*c + b*d
+  			const bcad = b.times(c).minus(a.times(d)) // b*c - a*d
+  		
+  			const re = acbd.div(c2d2)
+  			const im = bcad.div(c2d2)
+  		
+  			this.a = im
+  			this.b = re
+  		
+  			return this
+  		}
+  		minus(complex) {
+  			if (!complex.isComplex) {
+  				throw "[TheoremJS]: Complex operation require complex numbers"
+  			}
+  			this.a = this.a.minus(complex.a)
+  			this.b = this.b.minus(complex.b)
+  			return this
+  		}
+  		negated() {
+  			this.a = this.a.negated()
+  			this.b = this.b.negated()
+  			return this
+  		}
+  		plus(complex) {
+  			if (!complex.isComplex) {
+  				throw "[TheoremJS]: Complex operation require complex numbers"
+  			}
+  			this.a = this.a.plus(complex.a)
+  			this.b = this.b.plus(complex.b)
+  			return this
+  		}
+  		pow(complex) {
+  			/* I couldn't find a good formula, so here is a derivation and optimization
+  			 *
+  			 * z_1^z_2 = (a + bi)^(c + di)
+  			 *         = exp((c + di) * log(a + bi)
+  			 *         = pow(a^2 + b^2, (c + di) / 2) * exp(i(c + di)atan2(b, a))
+  			 * =>...
+  			 * Re = (pow(a^2 + b^2, c / 2) * exp(-d * atan2(b, a))) * cos(d * log(a^2 + b^2) / 2 + c * atan2(b, a))
+  			 * Im = (pow(a^2 + b^2, c / 2) * exp(-d * atan2(b, a))) * sin(d * log(a^2 + b^2) / 2 + c * atan2(b, a))
+  			 *
+  			 * =>...
+  			 * Re = exp(c * log(sqrt(a^2 + b^2)) - d * atan2(b, a)) * cos(d * log(sqrt(a^2 + b^2)) + c * atan2(b, a))
+  			 * Im = exp(c * log(sqrt(a^2 + b^2)) - d * atan2(b, a)) * sin(d * log(sqrt(a^2 + b^2)) + c * atan2(b, a))
+  			 *
+  			 * =>
+  			 * Re = exp(c * logsq2 - d * arg(z_1)) * cos(d * logsq2 + c * arg(z_1))
+  			 * Im = exp(c * logsq2 - d * arg(z_1)) * sin(d * logsq2 + c * arg(z_1))
+  			 *
+  			 */
+  			if (!complex.isComplex) {
+  				throw "[TheoremJS]: Complex operation require complex numbers"
+  			}
+  		
+  			function logHypot(a, b) {
+  				a = new BigNumber(a).toNumber()
+  				b = new BigNumber(b).toNumber()
+  		
+  				const _a = Math.abs(a);
+  				const _b = Math.abs(b);
+  		
+  				if (a === 0) {
+  					return new BigNumber(Math.log(_b));
+  				}
+  		
+  				if (b === 0) {
+  					return new BigNumber(Math.log(_a));
+  				}
+  		
+  				if (_a < 3000 && _b < 3000) {
+  					return new BigNumber(Math.log(a * a + b * b) * 0.5);
+  				}
+  		
+  				/* I got 4 ideas to compute this property without overflow:
+  				 *
+  				 * Testing 1000000 times with random samples for a,b ∈ [1, 1000000000] against a big decimal library to get an error estimate
+  				 *
+  				 * 1. Only eliminate the square root: (OVERALL ERROR: 3.9122483030951116e-11)
+  				 Math.log(a * a + b * b) / 2
+  				 *
+  				 *
+  				 * 2. Try to use the non-overflowing pythagoras: (OVERALL ERROR: 8.889760039210159e-10)
+  				 var fn = function(a, b) {
+  				 a = Math.abs(a);
+  				 b = Math.abs(b);
+  				 var t = Math.min(a, b);
+  				 a = Math.max(a, b);
+  				 t = t / a;
+  				 return Math.log(a) + Math.log(1 + t * t) / 2;
+  				 };
+  				 * 3. Abuse the identity cos(atan(y/x) = x / sqrt(x^2+y^2): (OVERALL ERROR: 3.4780178737037204e-10)
+  				 Math.log(a / Math.cos(Math.atan2(b, a)))
+  				 * 4. Use 3. and apply log rules: (OVERALL ERROR: 1.2014087502620896e-9)
+  				 Math.log(a) - Math.log(Math.cos(Math.atan2(b, a)))
+  				 */
+  		
+  				return new BigNumber(Math.log(a / Math.cos(Math.atan2(b, a))))
+  			}
+  		
+  		
+  			let a = this.a;
+  			let b = this.b;
+  			const c = complex.a;
+  			const d = complex.b;
+  		
+  			const arg = this.t.atan2(b, a);
+  			const loh = logHypot(a, b);
+  		
+  			a = this.t.exp(
+  				c.times(loh).minus(d.times(arg))
+  			)
+  			b = d.times(loh).plus(c.times(arg))
+  		
+  			this.a = a.times(this.t.cos(b))
+  			this.b = a.times(this.t.sin(b))
+  		
+  			return this
+  		}
+  		multipliedBy() {
+  			return this.times(...arguments)
+  		}
+  		times(complex) {
+  			if (!complex.isComplex) {
+  				throw "[TheoremJS]: Complex operation require complex numbers"
+  			}
+  			const a = this.a
+  			const b = this.b
+  			this.a = a.times(complex.a).minus(b.times(complex.b))
+  			this.b = a
+  						.plus(b)
+  						.times(complex.a.plus(complex.b))
+  						.minus(a.times(complex.a))
+  						.minus(b.times(complex.b)) // 	(a+b)(c+d)-ac-bd.
+  			return this
+  		}
+  		toString() {
+  			return `${this.a.toString()} ${this.b.lt(0) ? "-" : "+"} ${this.b.abs().toString()}i`
+  		}
+  	}
+  	return new complex(a, b, this)
+  }
+  get i () {
+  	return this.complex(0, 1)
   }
 }
 // Browserify / Node.js

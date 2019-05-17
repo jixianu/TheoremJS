@@ -1,4 +1,4 @@
-const t = require(__testDir + "../dist/theorem.min.js")
+const t = require(__testDir + "../dist/theorem.js")
 
 eye.describe("Array", () => {
     eye.test("Flatten", "node",
@@ -87,7 +87,57 @@ eye.describe("Math", () => {
             )
         })
     })
+	eye.describe("Complex", () => {
+		eye.test("Abs", "node",
+			$ => $(t.complex(1, 1).abs()).Equal(t.n(2).sqrt()),
+			$ => $(t.complex(32, 12).abs().toNumber()).isCloseTo(34.17601498127012)
+		)
+		eye.test("Arg", "node",
+			$ => $(t.complex(1, 1).arg().toNumber()).isCloseTo(t.c("pi").div(4).toNumber())
+		)
+		eye.test("Clone", "node",
+			$ => $(t.complex(1, 1).clone().toString()).Equal("1 + 1i")
+		)
+		eye.test("Conjugate", "node",
+			$ => $(t.complex(1, 1).conjugate().toString()).Equal("1 - 1i")
+		)
+		eye.test("Division", "node",
+			$ => $(t.complex(1, 1).div(t.complex(1, 1)).toString()).Equal("1 + 0i"),
+			$ => $(t.complex(2, 3).div(t.complex(3, -5)).toString()).Equal("-0.26470588235294117647 + 0.55882352941176470588i")
+		)
+		eye.test("Equality", "node",
+			$ => $(t.complex(2, 3).eq(t.complex(3, 3).minus(t.complex(1, 0)))).Equal(true)
+		)
+		eye.test("Exponential", "node",
+			$ => $(t.complex(2, 3).exp().toString()).Equal("-7.31511009490109891372481413925 + 1.04274365623590274091988122355i")
+		)
+		eye.test("Logarithm", "node",
+			$ => $(t.complex(2, 3).ln().toString()).Equal("1.28247380404213 + 0.982793723247329i"),
+			$ => $(t.complex(100, 0).log(10).toString()).Equal("1.99992155781462 + 0i"),
+			$ => $(t.log(t.complex(4, 2), 2).toString()).Equal("2.16095516072906501293 + 0.66890210622548354827i")
+		)
+		eye.test("Minus", "node",
+			$ => $(t.complex(3, -4).minus(t.complex(2, 4)).toString()).Equal("1 - 8i")
+		)
+		eye.test("Negated", "node",
+			$ => $(t.complex(2, 3).negated().toString()).Equal("-2 - 3i")
+		)
+		eye.test("Addition", "node",
+			$ => $(t.complex(18, -12).plus(t.complex(-3, 2)).toString()).Equal("15 - 10i")
+		)
+		eye.test("Exponentiation", "node",
+			$ => $(t.complex(3, 2).pow(t.complex(4, -2)).toString()).Equal("535.424019276695978424428817368 - 115.76768825678578727266368994i"),
+			$ => $(t.complex(2, 0).pow(t.complex(2, 0)).toString()).Equal("4 + 0i"),
+			$ => $(t.complex(0, 1).pow(t.complex(2, 0)).toString()).Equal("-1 + 0i")
+		)
+		eye.test("Multiplication", "node",
+			$ => $(t.complex(2, 3).times(t.complex(4, 5)).toString()).Equal("-7 + 22i")
+		)
+	})
     eye.describe("Math Basic Functions", () => {
+		eye.test("Exp", "node",
+			$ => $(t.ln(t.exp(3)).toNumber()).isCloseTo(3)
+		)
         eye.test("Factorial", "node",
             $ => $(t.factorial(5).toNumber()).Equal(120)
         )
@@ -98,7 +148,8 @@ eye.describe("Math", () => {
             $ => $(t.root(256, 8).toNumber()).Equal(2)
         )
         eye.test("Sqrt", "node",
-            $ => $(t.sqrt(4).toNumber()).Equal(2)
+            $ => $(t.sqrt(4).toNumber()).Equal(2),
+			$ => $(t.sqrt(-9).toString()).Equal("0 + 3i")
         )
         eye.test("Sigmoid", "node",
             $ => $(t.y_intercept(t.f(x => t.sigmoid(x).toNumber()))).Equal(0.5)
@@ -106,18 +157,18 @@ eye.describe("Math", () => {
     })
     eye.describe("Numbers", () => {
         eye.test("Pi", "node",
-            $ => $(t.pi().toNumber()).Equal(3.141592653589793)
+            $ => $(t.pi.toNumber()).Equal(3.141592653589793)
         )
         eye.test("e", "node",
-            $ => $(t.e().toNumber()).Equal(2.718281828459046)
+            $ => $(t.e.toNumber()).Equal(2.718281828459046)
         )
         eye.test("Golden Ratio", "node",
-            $ => $(t.goldenRatio().toNumber()).Equal(1.618033988749895)
+            $ => $(t.goldenRatio.toNumber()).Equal(1.618033988749895)
         )
         eye.test("Constants", "node",
-            $ => $(t.c("pi")).isCloseTo(t.pi(), 14),
-            $ => $(t.c("e")).isCloseTo(t.e(), 14),
-            $ => $(t.c("goldenRatio")).isCloseTo(t.goldenRatio(), 14)
+            $ => $(t.c("pi")).isCloseTo(t.pi, 14),
+            $ => $(t.c("e")).isCloseTo(t.e, 14),
+            $ => $(t.c("goldenRatio")).isCloseTo(t.goldenRatio, 14)
         )
         eye.describe("Primes", () => {
             eye.test("isPrime", "node",
@@ -179,38 +230,44 @@ eye.describe("Math", () => {
         eye.describe("Basic", () => {
             eye.test("Sin", "node",
                 $ => $(t.sin(0)).isCloseTo(0),
-                $ => $(t.sin(t.pi())).isCloseTo(0),
-                $ => $(t.sin(60)).isCloseTo(Math.sin(60))
+                $ => $(t.sin(t.pi)).isCloseTo(0),
+                $ => $(t.sin(60)).isCloseTo(Math.sin(60)),
+				$ => $(t.sin(t.complex(3, 2)).toString()).Equal("0.5309210862485197 - 3.59056458998578i")
             )
             eye.test("Cos", "node",
                 $ => $(t.cos(0)).isCloseTo(1),
-                $ => $(t.cos(t.pi())).isCloseTo(-1),
-                $ => $(t.cos(60)).isCloseTo(Math.cos(60))
+                $ => $(t.cos(t.pi)).isCloseTo(-1),
+                $ => $(t.cos(60)).isCloseTo(Math.cos(60)),
+				$ => $(t.cos(t.complex(t.c("pi"), 1)).toString()).Equal("-1.5430806348152437 - 1.4392063801500302e-16i")
             )
             eye.test("Tan", "node",
                 $ => $(t.tan(0)).isCloseTo(0),
-                $ => $(t.tan(t.pi())).isCloseTo(0),
-                $ => $(t.tan(60)).isCloseTo(Math.tan(60))
+                $ => $(t.tan(t.pi)).isCloseTo(0),
+                $ => $(t.tan(60)).isCloseTo(Math.tan(60)),
+				$ => $(t.tan(t.complex(3, 2)).toString()).Equal("-0.009884375038322494 + 0.965385879022133i")
             )
         })
         eye.describe("Hyperbolic", () => {
             eye.test("Sinh", "node",
                 $ => $(t.sinh(0)).isCloseTo(0),
-                $ => $(t.sinh(t.pi())).isCloseTo(Math.sinh(Math.PI))
+                $ => $(t.sinh(t.pi)).isCloseTo(Math.sinh(Math.PI)),
+				$ => $(t.sinh(t.complex(2, 3)).toString()).Equal("-3.59056458998578 + 0.5309210862485197i")
             )
             eye.test("Cosh", "node",
                 $ => $(t.cosh(0)).isCloseTo(1),
-                $ => $(t.cosh(t.pi())).isCloseTo(Math.cosh(Math.PI))
+                $ => $(t.cosh(t.pi)).isCloseTo(Math.cosh(Math.PI)),
+				$ => $(t.cosh(t.complex(2, 3)).toString()).Equal("-3.7245455049153224 + 0.5118225699873846i")
             )
             eye.test("Tanh", "node",
                 $ => $(t.tanh(0)).isCloseTo(0),
-                $ => $(t.tanh(t.pi())).isCloseTo(Math.tanh(Math.PI))
+                $ => $(t.tanh(t.pi)).isCloseTo(Math.tanh(Math.PI)),
+				$ => $(t.tanh(t.complex(2, 3)).toString()).Equal("0.965385879022133 - 0.009884375038322494i")
             )
         })
         eye.describe("Arc", () => {
             eye.test("Asin", "node",
                 $ => $(t.asin(0)).isCloseTo(0),
-                $ => $(t.asin(1)).isCloseTo(t.pi().div(2))
+                $ => $(t.asin(1)).isCloseTo(t.pi.div(2))
             )
             eye.test("Acos", "node",
                 $ => $(t.acos(0)).isCloseTo(Math.acos(0)),
@@ -218,7 +275,7 @@ eye.describe("Math", () => {
             )
             eye.test("Atan", "node",
                 $ => $(t.atan(0)).isCloseTo(0),
-                $ => $(t.atan(t.pi())).isCloseTo(Math.atan(Math.PI))
+                $ => $(t.atan(t.pi)).isCloseTo(Math.atan(Math.PI))
             )
         })
         eye.describe("Arc Hyperbolic", () => {
@@ -272,8 +329,8 @@ eye.describe("Math", () => {
 
 		eye.describe("Other", () => {
 			eye.test("Deg & Rad convertions", "node",
-	            $ => $(t.deg2rad(180)).Equal(t.pi()),
-	            $ => $(t.rad2deg(t.pi()).toNumber()).Equal(180)
+	            $ => $(t.deg2rad(180)).Equal(t.pi),
+	            $ => $(t.rad2deg(t.pi).toNumber()).Equal(180)
 	        )
 	        eye.test("Draw Circular Points", "node",
 	            $ => $(parseFloat(Object.keys(t.drawCircularPoints(3))[0])).Equal(-1),

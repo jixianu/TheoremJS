@@ -2,11 +2,16 @@
 A Math framework for computation in JavaScript
 
 [![GitHub release](https://img.shields.io/github/release/arguiot/TheoremJS.svg)](https://github.com/arguiot/TheoremJS/releases)
+[![cdnjs release](https://img.shields.io/cdnjs/v/TheoremJS.svg)](https://cdnjs.com/libraries/TheoremJS/)
 [![Build Status](https://travis-ci.org/arguiot/TheoremJS.svg?branch=master)](https://travis-ci.org/arguiot/TheoremJS)
 [![Github All Releases](https://img.shields.io/github/downloads/arguiot/TheoremJS/total.svg)](https://github.com/arguiot/TheoremJS/)
 [![npm](https://img.shields.io/npm/dt/theorem.js.svg)](https://www.npmjs.com/package/theorem.js)
 [![License](https://img.shields.io/github/license/arguiot/TheoremJS.svg)](LICENSE)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Farguiot%2FTheoremJS.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Farguiot%2FTheoremJS?ref=badge_shield)
 </div>
+
+
+TheoremJS is a mathematical framework that is packed up with tons of useful mathematical functions. It is composed of functions in most mathematical fields such as algebra, number theory, statistics, etc... It was designed to fit your need, whatever you are trying to do.
 
 # Getting Started
 
@@ -44,3 +49,6 @@ Also look at the list of [contributors](https://github.com/arguiot/TheoremJS/con
 This project is licensed under the MIT License - see the <LICENSE> file for details
 
 Copyright © 2017 - 2018 Arthur Guiot All Rights Reserved.
+
+
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Farguiot%2FTheoremJS.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Farguiot%2FTheoremJS?ref=badge_large)

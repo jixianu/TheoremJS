@@ -1,6 +1,6 @@
 {
     "name": "theorem.js",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "description": "A Math library for computation in JavaScript",
     "main": "dist/theorem.min.js",
     "scripts": {
@@ -31,12 +31,12 @@
     "homepage": "https://github.com/arguiot/TheoremJS#readme",
     "devDependencies": {
         "babel-core": "^6.26.3",
-        "babel-eslint": "^8.2.6",
+        "babel-eslint": "^10.0.1",
         "babel-helper-flip-expressions": "^0.4.3",
         "babel-loader": "^7.1.5",
-        "babel-minify": "^0.4.3",
-        "babel-plugin-minify-builtins": "^0.4.3",
-        "babel-plugin-minify-constant-folding": "^0.4.3",
+        "babel-minify": "^0.5.0",
+        "babel-plugin-minify-builtins": "^0.5.0",
+        "babel-plugin-minify-constant-folding": "^0.5.0",
         "babel-plugin-minify-dead-code-elimination": "^0.4.3",
         "babel-plugin-minify-flip-comparisons": "^0.4.3",
         "babel-plugin-minify-guarded-expressions": "^0.4.3",
@@ -73,7 +73,7 @@
         "gulp-rename": "^1.4.0",
         "gulp-rigger": "^0.5.8",
         "gulp-uglify": "^3.0.1",
-        "prettier": "1.14.0"
+        "prettier": "1.16.4"
     },
     "dependencies": {
         "bignumber.js": "^7.2.1"
